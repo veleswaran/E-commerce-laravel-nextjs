@@ -1,28 +1,36 @@
 import Link from "next/link";
-import cookies from 'js-cookie';
+import cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 const NavBar = () => {
   const [user, setUser] = useState({});
   const [token, setToken] = useState("");
-  const route = useRouter()
+  const [navItem, setNavItem] = useState([
+    "prouduct",
+    "category",
+    "about",
+  ]);
+  const route = useRouter();
 
   useEffect(() => {
-    const userToken = cookies.get('token');
-    const userData = cookies.get('user');
-    console.log(userToken)
+    const userToken = cookies.get("token");
+    const userData = cookies.get("user");
     setToken(userToken);
     if (userData) {
-      console.log(userData)
-      setUser(JSON.parse(userData));
+      const user = JSON.parse(userData)
+      if(user.user_type==="admin"){
+        setNavItem(["products","category","users","about"])
+      }
+      setUser(user);
     }
   }, []);
 
-  function handleLogOut(){
-    cookies.set("token","")
-    cookies.set("user","")
-    route.push('dashboard')
+  function handleLogOut() {
+    cookies.set("token", "");
+    cookies.set("user", "");
+    cookies.set("category", "");
+    route.push("dashboard");
   }
 
   return (
@@ -41,34 +49,42 @@ const NavBar = () => {
         </button>
         <div className="collapse navbar-collapse" id="mynavbar">
           <ul className="navbar-nav mx-auto">
-            <li className="nav-item">
-              <Link href="#" className="nav-link">
-                Products
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="#" className="nav-link">
-                Category
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="#" className="nav-link">
-                About
-              </Link>
-            </li>
+            {navItem.map((val, index) => (
+              <li className="nav-item" key={index}>
+                <Link href={`/${val}`} className="nav-link text-capitalize">
+                  {val}
+                </Link>
+              </li>
+            ))}
           </ul>
           <div className="d-flex">
             {token ? (
               <>
-               <Link href="/profile"  className="btn text-light">{user.name}</Link>
-              <img src={user.profile_photo_url} className="border rounded-circle" height={40}/>
-             
-              <Link href="/" onClick={handleLogOut} className="btn btn-outline-info ms-3">LogOut</Link>
+                <Link href="/profile" className="btn text-light">
+                  {user.name}
+                </Link>
+                <img
+                  src={user.profile_photo_url}
+                  className="border rounded-circle"
+                  height={40}
+                />
+
+                <Link
+                  href="/"
+                  onClick={handleLogOut}
+                  className="btn btn-outline-info ms-3"
+                >
+                  LogOut
+                </Link>
               </>
             ) : (
               <>
-                <Link href="/auth/register" className="btn btn-outline-info">Register</Link>
-                <Link href="/auth/login" className="btn btn-info ms-4">Login</Link>
+                <Link href="/auth/register" className="btn btn-outline-info">
+                  Register
+                </Link>
+                <Link href="/auth/login" className="btn btn-info ms-4">
+                  Login
+                </Link>
               </>
             )}
           </div>
