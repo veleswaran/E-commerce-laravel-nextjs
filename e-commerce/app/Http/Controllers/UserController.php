@@ -64,7 +64,7 @@ class UserController extends Controller
         if (array_key_exists('error', $user)) {
             return response()->json([
                 "message" => "User added not successfully",
-                "error" => $user["error"]
+                "errors" => $user["error"]
             ], 403);
         }
     

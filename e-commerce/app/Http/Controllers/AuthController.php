@@ -34,7 +34,7 @@ class AuthController extends Controller
         // Generate token
         $token = auth('api')->attempt($request->only('email', 'password'));
         if (!$token) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['errors' => 'Unauthorized'], 401);
         }
 
         // Return token and user info
@@ -46,22 +46,30 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // Get credentials
-        $credentials = $request->only('email', 'password');
-
-        // Attempt to generate token
-        if (!$token = auth('api')->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        try {
+            // Get credentials
+            $credentials = $request->only('email', 'password');
+    
+            // Attempt to generate token
+            if (!$token = auth('api')->attempt($credentials)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+    
+            Log::info('Generated JWT Token: ' . $token);
+            $user = auth('api')->user();
+    
+            // Return token and user info
+            return response()->json([
+                'token' => $token,
+                'user' => $user,
+            ]);
+        } catch (\Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('Login Error: ' . $e->getMessage());
+    
+            // Return a generic error response
+            return response()->json(['errors' => 'An error occurred while attempting to log in. Please try again.'], 500);
         }
-
-        Log::info('Generated JWT Token: ' . $token); 
-        $user = auth('api')->user();
-
-        // Return token and user info
-        return response()->json([
-            'token' => $token,
-            'user' => $user,
-        ]);
     }
 
     public function logout()

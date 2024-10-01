@@ -62,6 +62,9 @@ class UserServices{
         // Update the user
         $user->name = $user_data->name;
         $user->email = $user_data->email;
+        if($user_data->user_type){
+            $user->user_type = $user_data->user_type;
+        }
         $user->password = Hash::make($user_data->password);
         $user->save();
     
