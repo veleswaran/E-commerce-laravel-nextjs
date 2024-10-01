@@ -11,13 +11,14 @@ const UserEdit = ({ id }) => {
     name: "UPDATE",
     fields: [
       { label: "Name", type: "text", id: "name" },
-      { label: "Email", type: "email", id: "email" }
+      { label: "Email", type: "email", id: "email" },
+      { label: "User Type", type: "text", id: "user_type" }
     ],
   };
+  const token = cookies.get("token");
 
   useEffect(() => {
     async function getUser() {
-      const token = cookies.get("token");
       try {
         // post user information to laravel api
         if(token){
@@ -49,18 +50,25 @@ const UserEdit = ({ id }) => {
     e.preventDefault();
     try {
       // post user information to laravel api
-      const res = await axios.post(
-        `http://localhost:8000/api/user/${id}`,
-        data
+      console.log(token)
+      const res = await axios.put(
+        `http://localhost:8000/api/users/${id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
       setData({});
       route.push("/users");
     } catch (error) {
       if (error.response) {
-        const errorMessages = Object.values(error.response.data.errors)
-          .flat()
-          .join(", ");
-        setError(errorMessages || "An error occurred. Please try again.");
+        // const errorMessages = Object.values(error.response.data.errors)
+        //   .flat()
+        //   .join(", ");
+        // setError(errorMessages || "An error occurred. Please try again.");
+        console.log(error.response)
       } else {
         setError("An error occurred. Please try again.");
       }
